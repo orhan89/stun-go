@@ -89,7 +89,15 @@ func ParseXORMappedAddress(rawMappedAddress []byte, cookie uint32) (*MappedAddre
 	binary.Read(buffer, binary.BigEndian, &mappedAddress.Port)
 	binary.Read(buffer, binary.BigEndian, &mappedAddress.Address)
 
-	mappedAddress.Port = mappedAddress.Port ^ uint16(cookie)
+	cookieByte := make([]byte, 4)
+	binary.BigEndian.PutUint32(cookieByte, cookie)
+
+	cookieBuffer := bytes.NewBuffer(cookieByte) 
+
+	var cookie16 uint16
+	binary.Read(cookieBuffer, binary.BigEndian, &cookie16)
+
+	mappedAddress.Port = mappedAddress.Port ^ cookie16
 	mappedAddress.Address = mappedAddress.Address ^ cookie
 
 	return mappedAddress, nil

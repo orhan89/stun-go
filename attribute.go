@@ -53,8 +53,6 @@ func ParseAttributes(rawAttributes []byte, header *Header) ([]*Attribute, error)
 		binary.Read(buffer, binary.BigEndian, &attribute.Type)
 		binary.Read(buffer, binary.BigEndian, &attribute.Length)
 
-		fmt.Println(attribute.Type)
-
 		rawValue := make([]byte, attribute.Length)
 		binary.Read(buffer, binary.BigEndian, &rawValue)
 		value, err := ParseAttributeValue(rawValue, attribute.Type, header)
@@ -71,8 +69,6 @@ func ParseAttributes(rawAttributes []byte, header *Header) ([]*Attribute, error)
 }
 
 func ParseAttributeValue(rawValue []byte, attributeType uint16, header *Header) (AttributeValue, error) {
-	fmt.Println(attributeType)
-
 	switch attributeType {
 	case MappedAddressAttribute:
 		return ParseMappedAddress(rawValue)
