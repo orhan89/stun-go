@@ -6,7 +6,7 @@ import (
 )
 
 func TestNewHeader(t *testing.T) {
-	header := NewHeader(RequestClass)
+	header := NewHeader(RequestClass, BindingMethod)
 
 	if class := header.Class; class != RequestClass {
 		t.Errorf(`header.Class = %d, want 0`, class)
@@ -26,7 +26,7 @@ func TestNewHeader(t *testing.T) {
 }
 
 func TestSerializeHeader(t *testing.T) {
-	header := NewHeader(RequestClass)
+	header := NewHeader(RequestClass, BindingMethod)
 	header.TransactionId = fakeTransactionId()
 	buffer := header.Serialize()
 

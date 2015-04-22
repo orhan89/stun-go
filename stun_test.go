@@ -26,7 +26,7 @@ func TestRequestPublicAddress(t *testing.T) {
 }
 
 func TestRequest(t *testing.T) {
-	responseMessage, err := Request()
+	responseMessage, err := Request(RequestClass, BindingMethod)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -50,7 +50,7 @@ func TestRequest(t *testing.T) {
 }
 
 func ExampleMessage() {
-	header := NewHeader(RequestClass)
+	header := NewHeader(RequestClass, BindingMethod)
 	header.TransactionId = fakeTransactionId()
 
 	mappedAddress := NewMappedAddress(IPv4, 19302, 134744072)

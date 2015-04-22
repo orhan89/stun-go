@@ -19,6 +19,7 @@ const (
 	FailureResponseClass = 0x0110
 
 	BindingMethod = 0x0001
+	AllocateMethod = 0x0003
 
 	MagicCookie = 0x2112A442
 )
@@ -31,10 +32,10 @@ type Header struct {
 	TransactionId [3]uint32
 }
 
-func NewHeader(class uint16) *Header {
+func NewHeader(class uint16, method uint16) *Header {
 	return &Header{
 		Class:         class,
-		Method:        BindingMethod,
+		Method:        method,
 		Length:        0,
 		MagicCookie:   MagicCookie,
 		TransactionId: generateTransactionId(),

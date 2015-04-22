@@ -9,6 +9,8 @@ import (
 
 const (
 	MappedAddressAttribute = 0x0001
+	XORRelayAddressAttribute = 0x0016
+	XORMappedAddressAttribute = 0x0020
 )
 
 type AttributeValue interface {
@@ -42,7 +44,7 @@ func (attribute *Attribute) Serialize() []byte {
 	return bytes
 }
 
-func ParseAttributes(rawAttributes []byte) ([]*Attribute, error) {
+func ParseAttributes(rawAttributes []byte, header *Header) ([]*Attribute, error) {
 	buffer := bytes.NewBuffer(rawAttributes)
 	attributes := []*Attribute{}
 
@@ -51,11 +53,13 @@ func ParseAttributes(rawAttributes []byte) ([]*Attribute, error) {
 		binary.Read(buffer, binary.BigEndian, &attribute.Type)
 		binary.Read(buffer, binary.BigEndian, &attribute.Length)
 
+		fmt.Println(attribute.Type)
+
 		rawValue := make([]byte, attribute.Length)
 		binary.Read(buffer, binary.BigEndian, &rawValue)
-		value, err := ParseAttributeValue(rawValue)
+		value, err := ParseAttributeValue(rawValue, attribute.Type, header)
 		if err != nil {
-			return nil, err
+			continue
 		}
 
 		attribute.Value = value
@@ -66,14 +70,16 @@ func ParseAttributes(rawAttributes []byte) ([]*Attribute, error) {
 	return attributes, nil
 }
 
-func ParseAttributeValue(rawValue []byte) (AttributeValue, error) {
-	buffer := bytes.NewBuffer(rawValue)
-	var attributeType uint16
-	binary.Read(buffer, binary.BigEndian, &attributeType)
+func ParseAttributeValue(rawValue []byte, attributeType uint16, header *Header) (AttributeValue, error) {
+	fmt.Println(attributeType)
 
 	switch attributeType {
 	case MappedAddressAttribute:
 		return ParseMappedAddress(rawValue)
+	case XORMappedAddressAttribute:
+		return ParseXORMappedAddress(rawValue, header.MagicCookie)
+	case XORRelayAddressAttribute:
+		return ParseXORMappedAddress(rawValue, header.MagicCookie)
 	}
 
 	return nil, errors.New("Attribute type is invalid")

@@ -27,7 +27,7 @@ func ParseMessage(rawMessage []byte) (*Message, error) {
 		return nil, err
 	}
 
-	attributes, err := ParseAttributes(rawMessage[20:])
+	attributes, err := ParseAttributes(rawMessage[20:], header)
 	if err != nil {
 		return nil, err
 	}

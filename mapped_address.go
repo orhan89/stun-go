@@ -71,6 +71,30 @@ func ParseMappedAddress(rawMappedAddress []byte) (*MappedAddress, error) {
 	return mappedAddress, nil
 }
 
+func ParseXORMappedAddress(rawMappedAddress []byte, cookie uint32) (*MappedAddress, error) {
+	buffer := bytes.NewBuffer(rawMappedAddress)
+	mappedAddress := &MappedAddress{}
+
+	var alignment uint8
+	binary.Read(buffer, binary.BigEndian, &alignment)
+	if alignment != 0x00 {
+		return nil, errors.New("Mapped address padding is not empty")
+	}
+
+	binary.Read(buffer, binary.BigEndian, &mappedAddress.Family)
+	if mappedAddress.Family != IPv4 {
+		return nil, errors.New("Mapped address family is invalid")
+	}
+
+	binary.Read(buffer, binary.BigEndian, &mappedAddress.Port)
+	binary.Read(buffer, binary.BigEndian, &mappedAddress.Address)
+
+	mappedAddress.Port = mappedAddress.Port ^ uint16(cookie)
+	mappedAddress.Address = mappedAddress.Address ^ cookie
+
+	return mappedAddress, nil
+}
+
 func (mappedAddress *MappedAddress) String() string {
 	var buffer bytes.Buffer
 	buffer.WriteString(fmt.Sprintf("Family: %d\n", mappedAddress.Family))
