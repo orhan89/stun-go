@@ -12,10 +12,12 @@ const (
 	RequestTimeoutMilliseconds = 500
 )
 
-var StunServer = GoogleStunServer
-
 func RequestPublicIPAddress() (net.IP, error) {
-	responseMessage, err := Request(RequestClass, BindingMethod)
+	return RequestPublicIPAddressWithServer(GoogleStunServer)
+}
+
+func RequestPublicIPAddressWithServer(server string) (net.IP, error) {
+	responseMessage, err := Request(RequestClass, BindingMethod, GoogleStunServer)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +32,11 @@ func RequestPublicIPAddress() (net.IP, error) {
 }
 
 func RequestAllocate() (net.IP, uint16, error) {
-	responseMessage, err := Request(RequestClass, AllocateMethod)
+	return RequestAllocateWithServer(GoogleStunServer)
+}
+
+func RequestAllocateWithServer(server string) (net.IP, uint16, error) {
+	responseMessage, err := Request(RequestClass, AllocateMethod, server)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -44,17 +50,17 @@ func RequestAllocate() (net.IP, uint16, error) {
 	return mappedAddress.IPAddress(), mappedAddress.Port, nil
 }
 
-func Request(class uint16, method uint16) (*Message, error) {
+func Request(class uint16, method uint16, server string) (*Message, error) {
 	message := &Message{
 		Header:     NewHeader(class, method),
 		Attributes: []*Attribute{},
 	}
 
-	return RequestMessage(message)
+	return RequestMessage(message, server)
 }
 
-func RequestMessage(request *Message) (*Message, error) {
-	connection, err := net.DialTimeout("udp", StunServer, RequestTimeout())
+func RequestMessage(request *Message, server string) (*Message, error) {
+	connection, err := net.DialTimeout("udp", server, RequestTimeout())
 	if err != nil {
 		return nil, err
 	}
