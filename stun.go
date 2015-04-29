@@ -31,12 +31,16 @@ func RequestPublicIPAddressWithServer(server string) (net.IP, error) {
 	return mappedAddress.IPAddress(), nil
 }
 
-func RequestAllocate() (net.IP, uint16, error) {
-	return RequestAllocateWithServer(GoogleStunServer)
+func RequestAllocate(session_id int) (net.IP, uint16, error) {
+	return RequestAllocateWithServer(GoogleStunServer, session_id)
 }
 
-func RequestAllocateWithServer(server string) (net.IP, uint16, error) {
-	responseMessage, err := Request(RequestClass, AllocateMethod, server)
+func RequestAllocateWithServer(server string, session_id int) (net.IP, uint16, error) {
+	var sessionID SessionID
+	sessionID = SessionID(session_id)
+	session_attribute := NewAttribute(SessionIDAttribute, &sessionID)
+
+	responseMessage, err := Request(RequestClass, AllocateMethod, server, session_attribute)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -50,11 +54,24 @@ func RequestAllocateWithServer(server string) (net.IP, uint16, error) {
 	return mappedAddress.IPAddress(), mappedAddress.Port, nil
 }
 
-func Request(class uint16, method uint16, server string) (*Message, error) {
+func Request(class uint16, method uint16, server string, attributes ...*Attribute) (*Message, error) {
+	if attributes == nil {
+		attributes = []*Attribute{}
+	}
+
 	message := &Message{
 		Header:     NewHeader(class, method),
-		Attributes: []*Attribute{},
+		Attributes: attributes,
+		Padding: 0,
 	}
+
+	for _,attribute := range message.Attributes {
+		message.Header.Length += (attribute.Length + 4)
+	}
+
+	message.Padding = message.Header.Length % 4
+
+	message.Header.Length += message.Padding
 
 	return RequestMessage(message, server)
 }

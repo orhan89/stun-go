@@ -8,6 +8,7 @@ import (
 type Message struct {
 	Header     *Header
 	Attributes []*Attribute
+	Padding    uint16
 }
 
 func (message *Message) Serialize() []byte {
@@ -16,6 +17,11 @@ func (message *Message) Serialize() []byte {
 
 	for _, attribute := range message.Attributes {
 		bytes = append(bytes, attribute.Serialize()...)
+	}
+
+	var i uint16
+	for i=0; i<message.Padding; i++ {
+		bytes = append(bytes, 0)
 	}
 
 	return bytes
