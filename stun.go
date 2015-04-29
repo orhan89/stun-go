@@ -54,6 +54,21 @@ func RequestAllocateWithServer(server string, session_id int) (net.IP, uint16, e
 	return mappedAddress.IPAddress(), mappedAddress.Port, nil
 }
 
+func RequestRefresh(lifetime int) (error) {
+	return RequestRefreshWithServer(GoogleStunServer, lifetime)
+}
+
+func RequestRefreshWithServer(server string, lifetime int) (error) {
+	var lifetime_value Lifetime = Lifetime(lifetime)
+	lifetime_attribute := NewAttribute(LifetimeAttribute, &lifetime_value)
+
+	_, err := Request(RequestClass, RefreshMethod, server, lifetime_attribute)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func Request(class uint16, method uint16, server string, attributes ...*Attribute) (*Message, error) {
 	if attributes == nil {
 		attributes = []*Attribute{}

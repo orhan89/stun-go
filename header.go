@@ -20,6 +20,7 @@ const (
 
 	BindingMethod = 0x0001
 	AllocateMethod = 0x0003
+	RefreshMethod = 0x0004
 
 	MagicCookie = 0x2112A442
 )

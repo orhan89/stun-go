@@ -11,6 +11,7 @@ const (
 	MappedAddressAttribute = 0x0001
 	XORRelayAddressAttribute = 0x0016
 	XORMappedAddressAttribute = 0x0020
+	LifetimeAttribute = 0x000d
 	SessionIDAttribute = 0x802d
 )
 
